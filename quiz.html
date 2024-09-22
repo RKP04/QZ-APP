@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .progress-bar {
+            transition: width 0.6s ease;
+        }
+        .list-group-item-success {
+            background-color: #d4edda;
+        }
+        .list-group-item-danger {
+            background-color: #f8d7da;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4">Quiz App</h3>
+                    <div id="quiz-container">
+                        <!-- Quiz Questions will be injected here -->
+                    </div>
+                    <div class="progress mt-4">
+                        <div class="progress-bar" role="progressbar" style="width: 0%;" id="progress-bar"></div>
+                    </div>
+                    <button class="btn btn-primary btn-block mt-3" id="next-btn" onclick="nextQuestion()">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+const quizData = [
+    {
+        question: "What is the capital of France?",
+        a: "Berlin",
+        b: "Madrid",
+        c: "Paris",
+        d: "Rome",
+        correct: "c"
+    },
+    {
+        question: "Who wrote 'Hamlet'?",
+        a: "Charles Dickens",
+        b: "William Shakespeare",
+        c: "Mark Twain",
+        d: "Jane Austen",
+        correct: "b"
+    },
+    {
+        question: "What is the largest planet in our solar system?",
+        a: "Earth",
+        b: "Jupiter",
+        c: "Mars",
+        d: "Venus",
+        correct: "b"
+    }
+];
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+function loadQuiz() {
+    const quizContainer = document.getElementById("quiz-container");
+    quizContainer.innerHTML = `
+        <h4>${quizData[currentQuestionIndex].question}</h4>
+        <ul class="list-group">
+            <li class="list-group-item" onclick="selectAnswer('a')">A. ${quizData[currentQuestionIndex].a}</li>
+            <li class="list-group-item" onclick="selectAnswer('b')">B. ${quizData[currentQuestionIndex].b}</li>
+            <li class="list-group-item" onclick="selectAnswer('c')">C. ${quizData[currentQuestionIndex].c}</li>
+            <li class="list-group-item" onclick="selectAnswer('d')">D. ${quizData[currentQuestionIndex].d}</li>
+        </ul>
+    `;
+
+    // Show "Next" or "Submit" button based on the current question
+    const nextButton = document.getElementById("next-btn");
+    if (currentQuestionIndex === quizData.length - 1) {
+        nextButton.innerHTML = "Submit";
+        nextButton.setAttribute("onclick", "submitQuiz()");
+    } else {
+        nextButton.innerHTML = "Next";
+        nextButton.setAttribute("onclick", "nextQuestion()");
+    }
+
+    updateProgressBar();
+}
+
+function selectAnswer(answer) {
+    if (answer === quizData[currentQuestionIndex].correct) {
+        score++;
+    }
+    document.querySelectorAll(".list-group-item").forEach(item => {
+        item.onclick = null; // Disable clicking
+        if (item.innerText.includes(quizData[currentQuestionIndex].correct.toUpperCase())) {
+            item.classList.add("list-group-item-success");
+        } else {
+            item.classList.add("list-group-item-danger");
+        }
+    });
+}
+
+function nextQuestion() {
+    currentQuestionIndex++;
+    loadQuiz();
+}
+
+function submitQuiz() {
+    showResults();
+}
+
+function updateProgressBar() {
+    const progressBar = document.getElementById("progress-bar");
+    progressBar.style.width = ((currentQuestionIndex + 1) / quizData.length) * 100 + "%";
+}
+
+function showResults() {
+    const quizContainer = document.getElementById("quiz-container");
+    const percentage = (score / quizData.length) * 100;
+    let resultMessage = "";
+
+    if (percentage >= 70) {
+        resultMessage = "<h4 class='text-success'>Pass</h4>";
+    } else {
+        resultMessage = "<h4 class='text-danger'>Fail</h4>";
+    }
+
+    quizContainer.innerHTML = `
+        <h4>Your Score: ${score} / ${quizData.length}</h4>
+        <p>Percentage: ${percentage.toFixed(2)}%</p>
+        ${resultMessage}
+        <button class="btn btn-secondary" onclick="restartQuiz()">Restart Quiz</button>
+    `;
+    document.getElementById("progress-bar").style.width = "100%";
+}
+
+function restartQuiz() {
+    score = 0;
+    currentQuestionIndex = 0;
+    loadQuiz();
+}
+
+// Initialize Quiz
+loadQuiz();
+</script>
+
+</body>
+</html>
